@@ -1,7 +1,7 @@
 <?php
 /**
  * PHP OOP cURL
- *
+ * 
  * @author   Andreas Lutro <anlutro@gmail.com>
  * @license  http://opensource.org/licenses/MIT
  * @package  PHP cURL
@@ -20,21 +20,6 @@ class Request
 	const ENCODING_QUERY = 0;
 	const ENCODING_JSON = 1;
 	const ENCODING_RAW = 2;
-
-	/**
-	 * Allowed methods => allows postdata
-	 *
-	 * @var array
-	 */
-	public static $methods = array(
-		'get'     => false,
-		'head'    => false,
-		'post'    => true,
-		'put'     => true,
-		'patch'   => true,
-		'delete'  => true,
-		'options' => false,
-	);
 
 	/**
 	 * The HTTP method to use. Defaults to GET.
@@ -58,16 +43,9 @@ class Request
 	private $headers = array();
 
 	/**
-	 * The cookies sent with the request.
-	 *
-	 * @var array
-	 */
-	private $cookies = array();
-
-	/**
 	 * POST data sent with the request.
 	 *
-	 * @var mixed
+	 * @var array
 	 */
 	private $data = array();
 
@@ -116,12 +94,8 @@ class Request
 	{
 		$method = strtolower($method);
 
-		if (!array_key_exists($method, static::$methods)) {
+		if (!array_key_exists($method, $this->curl->getAllowedMethods())) {
 			throw new \InvalidArgumentException("Method [$method] not a valid HTTP method.");
-		}
-
-		if ($this->data && !static::$methods[$method]) {
-			throw new \LogicException('Request has POST data, but tried changing HTTP method to one that does not allow POST data');
 		}
 
 		$this->method = $method;
@@ -162,31 +136,8 @@ class Request
 	}
 
 	/**
-	 * Set a specific header to be sent with the request.
-	 *
-	 * @param string $key   Can also be a string in "foo: bar" format
-	 * @param mixed  $value
-	 * @param boolean  $preserveCase
-	 */
-	public function setHeader($key, $value = null, $preserveCase = false)
-	{
-		if ($value === null) {
-			list($key, $value) = explode(':', $value, 2);
-		}
-
-		if (!$preserveCase) {
-			$key = strtolower($key);
-		}
-		
-		$key = trim($key);
-		$this->headers[$key] = trim($value);
-
-		return $this;
-	}
-
-	/**
 	 * Set the headers to be sent with the request.
-	 *
+	 * 
 	 * Pass an associative array - e.g. ['Content-Type' => 'application/json']
 	 * and the correct header formatting - e.g. 'Content-Type: application/json'
 	 * will be done for you when the request is sent.
@@ -195,27 +146,9 @@ class Request
 	 */
 	public function setHeaders(array $headers)
 	{
-		$this->headers = array();
-
-		foreach ($headers as $key => $value) {
-			$this->setHeader($key, $value);
-		}
+		$this->headers = $headers;
 
 		return $this;
-	}
-
-	/**
-	 * Get a specific header from the request.
-	 *
-	 * @param  string $key
-	 *
-	 * @return mixed
-	 */
-	public function getHeader($key)
-	{
-		$key = strtolower($key);
-
-		return isset($this->headers[$key]) ? $this->headers[$key] : null;
 	}
 
 	/**
@@ -226,71 +159,6 @@ class Request
 	public function getHeaders()
 	{
 		return $this->headers;
-	}
-
-	/**
-	 * Set a cookie.
-	 *
-	 * @param string $key
-	 * @param string $value
-	 */
-	public function setCookie($key, $value)
-	{
-		$this->cookies[$key] = $value;
-		$this->updateCookieHeader();
-
-		return $this;
-	}
-
-	/**
-	 * Replace the request's cookies.
-	 *
-	 * @param array $cookies
-	 */
-	public function setCookies(array $cookies)
-	{
-		$this->cookies = $cookies;
-		$this->updateCookieHeader();
-
-		return $this;
-	}
-
-	/**
-	 * Read the request cookies and set the cookie header.
-	 *
-	 * @return void
-	 */
-	private function updateCookieHeader()
-	{
-		$strings = array();
-
-		foreach ($this->cookies as $key => $value) {
-			$strings[] = "{$key}={$value}";
-		}
-
-		$this->setHeader('cookie', implode('; ', $strings));
-	}
-
-	/**
-	 * Get a specific cookie from the request.
-	 *
-	 * @param  string $key
-	 *
-	 * @return string|null
-	 */
-	public function getCookie($key)
-	{
-		return isset($this->cookies[$key]) ? $this->cookies[$key] : null;
-	}
-
-	/**
-	 * Get all the request's cookies.
-	 *
-	 * @return string[]
-	 */
-	public function getCookies()
-	{
-		return $this->cookies;
 	}
 
 	/**
@@ -315,35 +183,46 @@ class Request
 	}
 
 	/**
+	 * Set a specific header to be sent with the request.
+	 *
+	 * @param string $key
+	 * @param mixed  $value
+	 */
+	public function setHeader($key, $value)
+	{
+		$this->headers[$key] = $value;
+
+		return $this;
+	}
+
+	/**
+	 * Get a specific header from the request.
+	 *
+	 * @param  string $key
+	 *
+	 * @return mixed
+	 */
+	public function getHeader($key)
+	{
+		return isset($this->headers[$key]) ? $this->headers[$key] : null;
+	}
+
+	/**
 	 * Set the POST data to be sent with the request.
 	 *
 	 * @param mixed $data
 	 */
 	public function setData($data)
 	{
-		if ($data && !static::$methods[$this->method]) {
-			throw new \InvalidArgumentException("HTTP method [$this->method] does not allow POST data.");
-		}
-
 		$this->data = $data;
 
 		return $this;
 	}
 
 	/**
-	 * Check whether the request has any data.
-	 *
-	 * @return boolean
-	 */
-	public function hasData()
-	{
-		return static::$methods[$this->method] && (bool) $this->encodeData();
-	}
-
-	/**
 	 * Get the POST data to be sent with the request.
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public function getData()
 	{
@@ -351,59 +230,25 @@ class Request
 	}
 
 	/**
-	* Set the encoding to use on the POST data, and (possibly) associated Content-Type headers
-	*
-	* @param int  $encoding  a Request::ENCODING_* constant
-	*/
-	public function setEncoding($encoding)
+	 * Set the cURL options for the request.
+	 *
+	 * @param array $options
+	 */
+	public function setOptions(array $options)
 	{
-		$encoding = intval($encoding);
-
-		if (
-			$encoding !== static::ENCODING_QUERY &&
-			$encoding !== static::ENCODING_JSON &&
-			$encoding !== static::ENCODING_RAW
-		) {
-			throw new \InvalidArgumentException("Encoding [$encoding] not a known Request::ENCODING_* constant");
-		}
-
-		if ($encoding === static::ENCODING_JSON && !$this->getHeader('Content-Type')) {
-			$this->setHeader('Content-Type', 'application/json');
-		}
-
-		$this->encoding = $encoding;
+		$this->options = $options;
 
 		return $this;
 	}
 
 	/**
-	 * Get the current encoding which will be used on the POST data
+	 * Get the cURL options for the request.
 	 *
-	 * @return int  a Request::ENCODING_* constant
+	 * @return array
 	 */
-	public function getEncoding()
+	public function getOptions()
 	{
-		return $this->encoding;
-	}
-
-	/**
-	 * Encode the POST data as a string.
-	 *
-	 * @return string
-	 */
-	public function encodeData()
-	{
-		switch ($this->encoding) {
-			case static::ENCODING_JSON:
-				return json_encode($this->data);
-			case static::ENCODING_QUERY:
-				return (!is_null($this->data) ? http_build_query($this->data) : '');
-			case static::ENCODING_RAW:
-				return $this->data;
-			default:
-				$msg = "Encoding [$this->encoding] not a known Request::ENCODING_* constant";
-				throw new \UnexpectedValueException($msg);
-		}
+		return $this->options;
 	}
 
 	/**
@@ -415,18 +260,6 @@ class Request
 	public function setOption($key, $value)
 	{
 		$this->options[$key] = $value;
-
-		return $this;
-	}
-
-	/**
-	 * Set the cURL options for the request.
-	 *
-	 * @param array $options
-	 */
-	public function setOptions(array $options)
-	{
-		$this->options = $options;
 
 		return $this;
 	}
@@ -444,37 +277,11 @@ class Request
 	}
 
 	/**
-	 * Get the cURL options for the request.
-	 *
-	 * @return array
-	 */
-	public function getOptions()
-	{
-		return $this->options;
-	}
-
-	/**
-	 * Set the HTTP basic username and password.
-	 *
-	 * @param  string $user
-	 * @param  string $pass
-	 *
-	 * @return string
-	 */
-	public function auth($user, $pass)
-	{
-		$this->user = $user;
-		$this->pass = $pass;
-
-		return $this;
-	}
-
-	/**
 	 * Set an username to authenticate the request of curl.
 	 *
 	 * @param  string $user
 	 *
-	 * @return static
+	 * @return mixed
 	 */
 	public function setUser($user)
 	{
@@ -488,7 +295,7 @@ class Request
 	 *
 	 * @param  string $pass
 	 *
-	 * @return static
+	 * @return mixed
 	 */
 	public function setPass($pass)
 	{
@@ -505,11 +312,33 @@ class Request
 	 */
 	public function getUserAndPass()
 	{
-		if ($this->user) {
+		if ($this->user && $this->pass) {
 			return $this->user . ':' . $this->pass;
 		}
 
 		return null;
+	}
+
+	/**
+	 * Encode the POST data as a string.
+	 *
+	 * @return string
+	 */
+	public function encodeData()
+	{
+		switch ($this->encoding) {
+			case Request::ENCODING_JSON:
+				return json_encode($this->data);
+
+			case Request::ENCODING_RAW:
+				return $this->data;
+
+			case Request::ENCODING_QUERY:
+				return http_build_query($this->data);
+
+			default:
+				throw new \UnexpectedValueException("Encoding [$encoding] not a known Request::ENCODING_* constant");
+		}
 	}
 
 	/**
@@ -519,13 +348,57 @@ class Request
 	 */
 	public function isJson()
 	{
-		return $this->encoding === static::ENCODING_JSON;
+		return $this->encoding === Request::ENCODING_JSON;
+	}
+
+	/**
+	* Set the encoding to use on the POST data, and (possibly) associated Content-Type headers
+	*
+	* @param int  $encoding  a Request::ENCODING_* constant
+	*/
+	public function setEncoding($encoding)
+	{
+		$encoding = intval($encoding);
+
+		if ($encoding !== REQUEST::ENCODING_QUERY && $encoding !== REQUEST::ENCODING_JSON && $encoding !== REQUEST::ENCODING_RAW) {
+			throw new \InvalidArgumentException("Encoding [$encoding] not a known Request::ENCODING_* constant");
+		}
+
+		if ($encoding === Request::ENCODING_JSON && !$this->getHeader('Content-Type')) {
+			$this->setHeader('Content-Type', 'application/json');
+		}
+
+		$this->encoding = $encoding;
+
+		return $this;
+	}
+
+	/**
+	* Get the current encoding which will be used on the POST data
+	*/
+	public function getEncoding()
+	{
+		return $this->encoding;
+	}
+
+	/**
+	 * Set whether the response should be JSON or not.
+	 *
+	 * @param boolean $toggle
+	 *
+	 * @deprecated Use setEncoding(Request::ENCODING_JSON)
+	 */
+	public function setJson($toggle)
+	{
+		$this->setEncoding($toggle ? Request::ENCODING_JSON : Request::ENCODING_QUERY);
+
+		return $this;
 	}
 
 	/**
 	 * Send the request.
 	 *
-	 * @return Response
+	 * @return mixed
 	 */
 	public function send()
 	{

@@ -36,6 +36,12 @@ class Response
 	public $info;
 
 	/**
+	 * @deprecated
+	 * @see  $statusText, $statusCode
+	 */
+	public $code;
+
+	/**
 	 * The response code including text, e.g. '200 OK'.
 	 *
 	 * @var string
@@ -51,90 +57,32 @@ class Response
 
 	/**
 	 * @param string $body
-	 * @param string $headers
+	 * @param array  $headers
 	 * @param mixed  $info
 	 */
 	public function __construct($body, $headers, $info = array())
 	{
 		$this->body = $body;
+		$this->headers = $headers;
 		$this->info = $info;
-		$this->parseHeader($headers);
+
+		if (isset($this->headers['HTTP/1.1'])) {
+			$this->setCode($this->headers['HTTP/1.1']);
+		} elseif (isset($this->headers['HTTP/1.0'])) {
+			$this->setCode($this->headers['HTTP/1.0']);
+		}
 	}
 
 	/**
-	 * Parse a header string.
+	 * Set the response code.
 	 *
-	 * @param  string $header
-	 *
-	 * @return void
+	 * @param string $code
 	 */
-	protected function parseHeader($header)
+	protected function setCode($code)
 	{
-		$headers = explode("\r\n", trim($header));
-		$this->parseHeaders($headers);
-	}
-
-	/**
-	 * Parse an array of headers.
-	 *
-	 * @param  array  $headers
-	 *
-	 * @return void
-	 */
-	protected function parseHeaders(array $headers)
-	{
-		$this->headers = array();
-
-		// find and set the HTTP status code and reason
-		$firstHeader = array_shift($headers);
-		if (!preg_match('/^HTTP\/\d(\.\d)? [0-9]{3}/', $firstHeader)) {
-			throw new \InvalidArgumentException('Invalid response header');
-		}
-		list(, $status) = explode(' ', $firstHeader, 2);
-		$code = explode(' ', $status);
-		$code = (int) $code[0];
-
-		// special handling for HTTP 100 responses
-		if ($code === 100) {
-			// remove empty header lines between 100 and actual HTTP status
-			foreach ($headers as $key => $header) {
-				if ($header) {
-					break;
-				}
-				unset($headers[$key]);
-			}
-
-			// start the process over with the 100 continue header stripped away
-			return $this->parseHeaders($headers);
-		}
-
-		$this->statusText = $status;
-		$this->statusCode = $code;
-
-		foreach ($headers as $header) {
-			// skip empty lines
-			if (!$header) {
-				continue;
-			}
-
-			$delimiter = strpos($header, ':');
-			if (!$delimiter) {
-				continue;
-			}
-
-			$key = trim(strtolower(substr($header, 0, $delimiter)));
-			$val = ltrim(substr($header, $delimiter + 1));
-
-			if (isset($this->headers[$key])) {
-				if (is_array($this->headers[$key])) {
-					$this->headers[$key][] = $val;
-				} else {
-					$this->headers[$key] = array($this->headers[$key], $val);
-				}
-			} else {
-				$this->headers[$key] = $val;
-			}
-		}
+		$this->code = $code;
+		$this->statusText = $code;
+		list($this->statusCode, ) = explode(' ', $code);
 	}
 
 	/**
@@ -146,10 +94,7 @@ class Response
 	 */
 	public function getHeader($key)
 	{
-		$key = strtolower($key);
-
-		return array_key_exists($key, $this->headers) ?
-			$this->headers[$key] : null;
+		return array_key_exists($key, $this->headers) ? $this->headers[$key] : null;
 	}
 
 	/**
