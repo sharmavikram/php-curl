@@ -1,12 +1,12 @@
 <?php
 
-use anlutro\cURL\Request;
+use vikram\cURL\Request;
 
 class RequestTest extends PHPUnit_Framework_TestCase
 {
 	private function makeRequest($curl = null)
 	{
-		return new Request($curl ?: new \anlutro\cURL\cURL);
+		return new Request($curl ?: new \vikram\cURL\cURL);
 	}
 
 	/** @test */

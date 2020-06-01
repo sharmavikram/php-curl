@@ -19,7 +19,7 @@ class cURLTest extends PHPUnit_Framework_TestCase
 
 	private function makeCurl()
 	{
-		return new anlutro\cURL\cURL;
+		return new vikram\cURL\cURL;
 	}
 
 	/** @test */
@@ -117,14 +117,14 @@ class cURLTest extends PHPUnit_Framework_TestCase
 	/** @test */
 	public function throwsExceptionOnCurlError()
 	{
-		$this->setExpectedException('anlutro\cURL\cURLException', 'cURL request failed with error [7]:');
+		$this->setExpectedException('vikram\cURL\cURLException', 'cURL request failed with error [7]:');
 		$this->makeCurl()->get('http://0.0.0.0');
 	}
 
 	/** @test */
 	public function throwsExceptionWithMissingUrl()
 	{
-		$this->setExpectedException('BadMethodCallException', 'Missing argument 1 ($url) for anlutro\cURL\cURL::get');
+		$this->setExpectedException('BadMethodCallException', 'Missing argument 1 ($url) for vikram\cURL\cURL::get');
 		$this->makeCurl()->get();
 	}
 

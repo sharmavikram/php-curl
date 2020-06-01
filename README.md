@@ -1,9 +1,9 @@
 # php-curl
 
-[![Build Status](https://travis-ci.org/anlutro/php-curl.png?branch=master)](https://travis-ci.org/anlutro/php-curl)
-[![Latest Stable Version](https://poser.pugx.org/anlutro/curl/v/stable.svg)](https://github.com/anlutro/php-curl/releases)
-[![Latest Unstable Version](https://poser.pugx.org/anlutro/curl/v/unstable.svg)](https://github.com/anlutro/php-curl/branches/active)
-[![License](https://poser.pugx.org/anlutro/curl/license.svg)](http://opensource.org/licenses/MIT)
+[![Build Status](https://travis-ci.org/vikram/php-curl.png?branch=master)](https://travis-ci.org/vikram/php-curl)
+[![Latest Stable Version](https://poser.pugx.org/vikram/curl/v/stable.svg)](https://github.com/vikram/php-curl/releases)
+[![Latest Unstable Version](https://poser.pugx.org/vikram/curl/v/unstable.svg)](https://github.com/vikram/php-curl/branches/active)
+[![License](https://poser.pugx.org/vikram/curl/license.svg)](http://opensource.org/licenses/MIT)
 
 
 The smallest possible OOP wrapper for PHP's curl capabilities.
@@ -19,7 +19,7 @@ If you're looking for a more user-friendly abstraction, check out [Guzzle](http:
 ## Usage
 
 ```php
-$curl = new anlutro\cURL\cURL;
+$curl = new vikram\cURL\cURL;
 
 $response = $curl->get('http://www.google.com');
 
@@ -79,7 +79,7 @@ The package comes with a facade you can use if you prefer the static method call
 
 You do **not** need to add a service provider.
 
-Optionally, add `'cURL' => 'anlutro\cURL\Laravel\cURL'` to the array of aliases in `config/app.php`.
+Optionally, add `'cURL' => 'vikram\cURL\Laravel\cURL'` to the array of aliases in `config/app.php`.
 
 Replace `$curl->` with `cURL::` in the examples above.
 

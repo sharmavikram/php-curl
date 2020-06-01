@@ -1,6 +1,6 @@
 <?php
 
-use anlutro\cURL\Response;
+use vikram\cURL\Response;
 
 class ResponseTest extends PHPUnit_Framework_TestCase
 {

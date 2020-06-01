@@ -2,12 +2,12 @@
 /**
  * PHP OOP cURL
  * 
- * @author   Andreas Lutro <anlutro@gmail.com>
+ * @author   Andreas Lutro <sharmavikram054@gmail.com>
  * @license  http://opensource.org/licenses/MIT
  * @package  PHP cURL
  */
 
-namespace anlutro\cURL\Laravel;
+namespace vikram\cURL\Laravel;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -18,6 +18,6 @@ class cURL extends Facade
 {
 	public static function getFacadeAccessor()
 	{
-		return 'anlutro\cURL\cURL';
+		return 'vikram\cURL\cURL';
 	}
 }

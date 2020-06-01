@@ -2,12 +2,12 @@
 /**
  * PHP OOP cURL
  * 
- * @author   Andreas Lutro <anlutro@gmail.com>
+ * @author   Andreas Lutro <sharmavikram054@gmail.com>
  * @license  http://opensource.org/licenses/MIT
  * @package  PHP cURL
  */
 
-namespace anlutro\cURL;
+namespace vikram\cURL;
 
 /**
  * cURL request representation class.

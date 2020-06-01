@@ -2,12 +2,12 @@
 /**
  * PHP OOP cURL
  * 
- * @author   Andreas Lutro <anlutro@gmail.com>
+ * @author   Andreas Lutro <sharmavikram054@gmail.com>
  * @license  http://opensource.org/licenses/MIT
  * @package  PHP cURL
  */
 
-namespace anlutro\cURL;
+namespace vikram\cURL;
 
 /**
  * cURL wrapper class.
@@ -38,14 +38,14 @@ class cURL
 	 *
 	 * @var string
 	 */
-	protected $requestClass = 'anlutro\cURL\Request';
+	protected $requestClass = 'vikram\cURL\Request';
 
 	/**
 	 * The response class to use.
 	 *
 	 * @var string
 	 */
-	protected $responseClass = 'anlutro\cURL\Response';
+	protected $responseClass = 'vikram\cURL\Response';
 
 	/**
 	 * Get allowed methods.
