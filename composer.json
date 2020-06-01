@@ -1,11 +1,11 @@
 {
-    "name": "anlutro/curl",
+    "name": "vikram/curl",
     "description": "Simple OOP cURL wrapper.",
     "license": "MIT",
     "authors": [
         {
-            "name": "Andreas Lutro",
-            "email": "anlutro@gmail.com"
+            "name": "vikram sharma",
+            "email": "sharmavikram054@gmail.com"
         }
     ],
     "require": {

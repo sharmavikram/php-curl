@@ -14,7 +14,7 @@ If you're looking for a more user-friendly abstraction, check out [Guzzle](http:
 
 ## Installation
 
-	$ composer require anlutro/curl
+	$ composer require vikram/curl
 
 ## Usage
 
